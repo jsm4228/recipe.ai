@@ -4,6 +4,7 @@ Recipe app built with the MERN stack and OpenAI API to generate and save recipes
 
 ## Technologies
 - MERN
+- TypeScript (maybe??)
 - GraphQL
 - MongoDB Atlas
 - Google OAuth

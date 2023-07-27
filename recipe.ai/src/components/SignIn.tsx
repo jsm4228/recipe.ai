@@ -71,6 +71,7 @@ export default function SignIn() {
       return;
     } else {
       setUser(user.user);
+
       //insert code for setting context variable to user and redirecting to home page and passing user object to the next page and using local storage to store user data
     }
   };

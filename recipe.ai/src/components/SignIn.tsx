@@ -13,9 +13,10 @@ import { Grow } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { BASE_URL } from "../App";
+import { UserContext } from "../contexts/UserContext";
 import { ChangeEvent } from "react";
 
 function Copyright(props: any) {
@@ -48,6 +49,9 @@ export default function SignIn() {
     email: "",
     password: "",
   };
+
+  const { user, setUser } = useContext(UserContext);
+
   const [formState, setFormState] = useState<FormState>(initialState);
   const [isValid, setIsValid] = useState(true);
 
@@ -65,6 +69,9 @@ export default function SignIn() {
     if (!user) {
       setIsValid(false);
       return;
+    } else {
+      setUser(user.user);
+      //insert code for setting context variable to user and redirecting to home page and passing user object to the next page and using local storage to store user data
     }
   };
 

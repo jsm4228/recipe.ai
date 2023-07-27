@@ -14,7 +14,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useState, ChangeEvent } from "react";
-import { UserContext, BASE_URL, OPENAI_KEY } from "../App";
+import { BASE_URL, OPENAI_KEY } from "../App";
 import axios from "axios";
 
 function Copyright(props: any) {

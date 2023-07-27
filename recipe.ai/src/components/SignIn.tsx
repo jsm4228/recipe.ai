@@ -9,6 +9,7 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import { Grow } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -48,22 +49,23 @@ export default function SignIn() {
     password: "",
   };
   const [formState, setFormState] = useState<FormState>(initialState);
+  const [isValid, setIsValid] = useState(true);
 
   const [remember, setRemember] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormState({ ...formState, [e.target.id]: e.target.value }); // Updating form state when input values change
+    setIsValid(true);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // const data = new FormData(event.currentTarget);
-    // setFormState({
-    //   email: data.get("email") as string | null,
-    //   password: data.get("password") as string | null,
-    // });
 
-    await authenticateUser();
+    const user = await authenticateUser();
+    if (!user) {
+      setIsValid(false);
+      return;
+    }
   };
 
   const authenticateUser = async () => {
@@ -132,6 +134,8 @@ export default function SignIn() {
                 autoComplete="email"
                 onChange={handleChange}
                 autoFocus
+                error={!isValid}
+                helperText={!isValid ? "Incorrect entry" : ""}
               />
               <TextField
                 margin="normal"
@@ -143,6 +147,8 @@ export default function SignIn() {
                 id="password"
                 onChange={handleChange}
                 autoComplete="current-password"
+                error={!isValid}
+                helperText={!isValid ? "Incorrect entry" : ""}
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}

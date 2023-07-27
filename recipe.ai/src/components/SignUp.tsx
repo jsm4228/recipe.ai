@@ -13,7 +13,7 @@ import { Container } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { UserContext, BASE_URL, OPENAI_KEY } from "../App";
 import axios from "axios";
 
@@ -68,6 +68,10 @@ export default function SignIn() {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFormState({ ...formState, [e.target.id]: e.target.value }); // Updating form state when input values change
   };
 
   const createUser = async () => {
@@ -132,6 +136,7 @@ export default function SignIn() {
                       name="username"
                       autoComplete="username"
                       type="username"
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -143,6 +148,7 @@ export default function SignIn() {
                       name="email"
                       autoComplete="email"
                       type="email"
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -154,6 +160,7 @@ export default function SignIn() {
                       type="password"
                       id="password"
                       autoComplete="new-password"
+                      onChange={handleChange}
                     />
                   </Grid>
                 </Grid>

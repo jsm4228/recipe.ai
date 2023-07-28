@@ -21,6 +21,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import KitchenOutlinedIcon from "@mui/icons-material/KitchenOutlined";
 import React from "react";
 import { Configuration, OpenAIApi } from "openai";
+import { OPENAI_KEY } from "../App";
 
 function generate(element: React.ReactElement) {
   return [0, 1, 2].map((value) =>
@@ -38,26 +39,26 @@ const GenerateRecipe = () => {
   const [healthy, setHealthy] = React.useState("");
   const [items, setItems] = React.useState<string[]>([]);
 
-  //   const config = new Configuration({
-  //     apiKey: OPENAI_KEY,
-  //   });
-  //   const openai = new OpenAIApi(config);
+  const config = new Configuration({
+    apiKey: OPENAI_KEY,
+  });
+  const openai = new OpenAIApi(config);
 
-  //   const runPrompt = async (message: String[]) => {
-  //     const response_ai = await openai.createCompletion({
-  //       model: "text-davinci-003",
-  //       prompt: message,
-  //       max_tokens: 2048,
-  //       temperature: 1,
-  //     });
-  //     return response_ai.data.choices[0].text;
+  const runPrompt = async (message: String[]) => {
+    const response_ai = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: message,
+      max_tokens: 2048,
+      temperature: 1,
+    });
+    return response_ai.data.choices[0].text;
 
-  //     //   const data_ai = await axios.post(`${BASE_URL}/api/messages`, {
-  //     //     content: ,
-  //     //     chat: currentChat,
-  //     //   });
-  //     //in order for sent prompt to stay on screen, we needed to pass 'data' again
-  //   };
+    //   const data_ai = await axios.post(`${BASE_URL}/api/messages`, {
+    //     content: ,
+    //     chat: currentChat,
+    //   });
+    //in order for sent prompt to stay on screen, we needed to pass 'data' again
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -88,8 +89,8 @@ const GenerateRecipe = () => {
         ", "
       )}. Please make sure the recipe is a ${meal} and ${healthy}. Can you output the steps in a paragraph format? And can you output the ingredients, measurements, and unit of measurement in a format like: 'ingredient, measurement, unit of measurment'. After this, can you output a list of that says the title, description, preperationTime, servings, and category. The category can be any cuisine type and a description of that cuisine`,
     ];
-    //const response = await runPrompt(prompt);
-    //console.log(response);
+    const response = await runPrompt(prompt);
+    console.log(response);
   };
 
   return (
@@ -165,12 +166,13 @@ const GenerateRecipe = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
+      </form>
+      <form onSubmit={handleGenerateSubmit}>
         <Button
           type="submit"
           variant="outlined"
           color="primary"
           sx={{ height: "90%" }}
-          //   onClick={handleGenerateSubmit}
         >
           Generate Recipe
         </Button>

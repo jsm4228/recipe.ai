@@ -19,9 +19,11 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import KitchenOutlinedIcon from "@mui/icons-material/KitchenOutlined";
-import React from "react";
+import React, { useContext } from "react";
 import { Configuration, OpenAIApi } from "openai";
-import { OPENAI_KEY } from "../App";
+import { BASE_URL, OPENAI_KEY } from "../App";
+import { UserContext } from "../contexts/UserContext";
+import axios from "axios";
 
 function generate(element: React.ReactElement) {
   return [0, 1, 2].map((value) =>
@@ -38,26 +40,148 @@ const GenerateRecipe = () => {
   const [meal, setMeal] = React.useState("");
   const [healthy, setHealthy] = React.useState("");
   const [items, setItems] = React.useState<string[]>([]);
+  const { user, setUser } = useContext(UserContext);
 
   const config = new Configuration({
     apiKey: OPENAI_KEY,
   });
   const openai = new OpenAIApi(config);
 
-  const runPrompt = async (message: String[]) => {
+  interface Recipe {
+    title: string;
+    description: string;
+    cookingInstructions: string[];
+    preparationTime: string;
+    servings: number;
+    ingredients: {}[];
+    image: string;
+  }
+
+  const runImagePrompt = async (message: string) => {
+    const response = await openai.createImage({
+      prompt: message,
+      n: 1,
+      size: "1024x1024",
+    });
+    const image_url = response.data.data[0].url;
+    console.log(image_url);
+    return image_url;
+  };
+
+  const runTextPrompt = async (message: string) => {
     const response_ai = await openai.createCompletion({
-      model: "text-davinci-003",
+      model: "text-davinci-002",
       prompt: message,
       max_tokens: 2048,
-      temperature: 1,
+      temperature: 0.2,
     });
-    return response_ai.data.choices[0].text;
 
-    //   const data_ai = await axios.post(`${BASE_URL}/api/messages`, {
-    //     content: ,
-    //     chat: currentChat,
-    //   });
-    //in order for sent prompt to stay on screen, we needed to pass 'data' again
+    return response_ai.data.choices[0].text;
+  };
+  const parseRecipe = async (input: string): Promise<Recipe> => {
+    const recipe: Recipe = {
+      title: "",
+      description: "",
+      cookingInstructions: [],
+      preparationTime: "",
+      servings: 0,
+      ingredients: [],
+      image: "",
+    };
+
+    const lines = input.split("\n").map((line) => line.trim());
+    console.log(lines);
+
+    recipe.title = lines[
+      lines.findIndex((line) => line.toLowerCase().startsWith("title"))
+    ]
+      .substring("title ".length + 1)
+      .replace(/[^\w\s]/gi, "");
+    recipe.description = lines[
+      lines.findIndex((line) => line.toLowerCase().startsWith("description"))
+    ]
+      .substring("description ".length + 1)
+      .replace(/[^\w\s]/gi, "");
+
+    const preparationIndex = lines.findIndex((line) =>
+      line.toLowerCase().replace(" ", "").startsWith("preparationtime")
+    );
+
+    recipe.preparationTime = lines[preparationIndex].substring(
+      "preparationTime ".length
+    );
+
+    recipe.servings = Number(
+      lines[
+        lines.findIndex((line) => line.toLowerCase().startsWith("servings"))
+      ].substring("servings ".length)
+    );
+
+    //recipe.cookingInstructions =
+    const instructionsStartIndex =
+      lines.findIndex((line) =>
+        line.toLowerCase().replace(" ", "").startsWith("cookinginstructions")
+      ) + 1;
+
+    recipe.cookingInstructions = lines.slice(
+      instructionsStartIndex,
+      preparationIndex
+    );
+
+    const ingredientsStartIndex =
+      lines.findIndex((line) => line.toLowerCase().startsWith("ingredients")) +
+      2;
+
+    const ingredientArray = lines.slice(ingredientsStartIndex);
+    recipe.ingredients = ingredientArray.map((ingredient) => {
+      const [name, quantity] = ingredient.split(",");
+      return {
+        name: name.trim().replace(/[^\w\s]/gi, ""),
+        quantity: quantity.trim(),
+      };
+    });
+
+    const image = await runImagePrompt(recipe.description);
+    recipe.image = image ? image : "";
+
+    return recipe;
+  };
+  const handleGenerateSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    const prompt: string = `Please create a recipe for ${meal} that is ${healthy} and uses the following ingredients: ${items.join()}.
+
+      In your response, please provide the following attributes for the recipe:
+      title - [please provide a title of the recipe that makes sense]
+      description - [describe what the meal is]
+      cookingInstructions - [please provide a numbered list of instructions to make the recipe]
+      preparationTime: [provide the amount of time in minutes to make this recipe]
+      servings: [provide the amount of servings this recipe makes]
+      image: [provide a random url from unsplash]
+      Ingredients: [provide a list of ingredients in the format of "name of ingredient, quantity of ingredient"
+      
+      In your response, please ensure all these attributes (title, description, cookingInstructions, preparationTime, servings, image, and ingredients) have a value and all these attributes are lowercase in your response and appear exactly as written here (one word and in camelCase).`;
+    console.log(prompt);
+
+    try {
+      const response = await runTextPrompt(prompt);
+      console.log(response);
+      //   response ? console.log(await parseRecipe(response)) : null;
+      let recipe;
+      response ? (recipe = await parseRecipe(response)) : null;
+      recipe = { ...recipe, user: user._id };
+      console.log(recipe);
+      const recipe_response = await axios.post(
+        `${BASE_URL}/api/recipes/`,
+        recipe
+      );
+
+      console.log(recipe_response.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,19 +202,6 @@ const GenerateRecipe = () => {
 
   const handleChangeHealthy = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHealthy(event.target.value);
-  };
-
-  const handleGenerateSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    const prompt = [
-      `Please create a recipe with the follwing ingredients: ${items.join(
-        ", "
-      )}. Please make sure the recipe is a ${meal} and ${healthy}. Can you output the steps in a paragraph format? And can you output the ingredients, measurements, and unit of measurement in a format like: 'ingredient, measurement, unit of measurment'. After this, can you output a list of that says the title, description, preperationTime, servings, and category. The category can be any cuisine type and a description of that cuisine`,
-    ];
-    const response = await runPrompt(prompt);
-    console.log(response);
   };
 
   return (

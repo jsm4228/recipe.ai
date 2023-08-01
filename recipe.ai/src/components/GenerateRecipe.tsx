@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  CircularProgress,
   Container,
   FormControl,
   FormControlLabel,
@@ -24,6 +25,7 @@ import { Configuration, OpenAIApi } from "openai";
 import { BASE_URL, OPENAI_KEY } from "../App";
 import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
+import RecipeCard from "./RecipeCard";
 
 function generate(element: React.ReactElement) {
   return [0, 1, 2].map((value) =>
@@ -34,30 +36,47 @@ function generate(element: React.ReactElement) {
 }
 
 const GenerateRecipe = () => {
+  interface Recipe {
+    title: string | undefined;
+    description: string | undefined;
+    cookingInstructions: string[] | undefined;
+    preparationTime: string | undefined;
+    servings: string | undefined;
+    ingredients: {}[] | undefined;
+    image: string | undefined;
+    user: string | undefined;
+  }
+  const { user, setUser } = useContext(UserContext);
+
+  const initialRecipe: Recipe = {
+    title: "",
+    description: "",
+    cookingInstructions: [],
+    preparationTime: "",
+    servings: "",
+    ingredients: [],
+    image: "",
+    user: user.username,
+  };
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
   const [meal, setMeal] = React.useState("");
   const [healthy, setHealthy] = React.useState("");
   const [items, setItems] = React.useState<string[]>([]);
-  const { user, setUser } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const [loadingMessage, setLoadingMessage] = React.useState("");
+  const [loaded, setLoaded] = React.useState(false);
+  const [recipe, setRecipe] = React.useState<Recipe>(initialRecipe);
 
   const config = new Configuration({
     apiKey: OPENAI_KEY,
   });
   const openai = new OpenAIApi(config);
 
-  interface Recipe {
-    title: string;
-    description: string;
-    cookingInstructions: string[];
-    preparationTime: string;
-    servings: number;
-    ingredients: {}[];
-    image: string;
-  }
-
   const runImagePrompt = async (message: string) => {
+    setLoading(true);
+    setLoadingMessage("Generating image...");
     const response = await openai.createImage({
       prompt: message,
       n: 1,
@@ -65,86 +84,101 @@ const GenerateRecipe = () => {
     });
     const image_url = response.data.data[0].url;
     console.log(image_url);
+    setLoading(false);
     return image_url;
   };
 
   const runTextPrompt = async (message: string) => {
+    setLoading(true);
+    setLoadingMessage("Generating recipe...");
     const response_ai = await openai.createCompletion({
       model: "text-davinci-002",
       prompt: message,
       max_tokens: 2048,
       temperature: 0.2,
     });
-
+    setLoading(false);
     return response_ai.data.choices[0].text;
   };
-  const parseRecipe = async (input: string): Promise<Recipe> => {
+  const parseRecipe = async (input: string): Promise<Recipe | null> => {
     const recipe: Recipe = {
       title: "",
       description: "",
       cookingInstructions: [],
       preparationTime: "",
-      servings: 0,
+      servings: "",
       ingredients: [],
       image: "",
+      user: user.username,
     };
+    try {
+      const lines = input
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+      console.log(lines);
 
-    const lines = input.split("\n").map((line) => line.trim());
-    console.log(lines);
+      recipe.title = lines[
+        lines.findIndex((line) => line.toLowerCase().startsWith("title"))
+      ]
+        .substring("title ".length + 1)
+        .replace(/[^\w\s]/gi, "");
+      recipe.description = lines[
+        lines.findIndex((line) => line.toLowerCase().startsWith("description"))
+      ]
+        .substring("description ".length + 1)
+        .replace(/[^\w\s]/gi, "");
 
-    recipe.title = lines[
-      lines.findIndex((line) => line.toLowerCase().startsWith("title"))
-    ]
-      .substring("title ".length + 1)
-      .replace(/[^\w\s]/gi, "");
-    recipe.description = lines[
-      lines.findIndex((line) => line.toLowerCase().startsWith("description"))
-    ]
-      .substring("description ".length + 1)
-      .replace(/[^\w\s]/gi, "");
+      const preparationIndex = lines.findIndex((line) =>
+        line.toLowerCase().replace(" ", "").startsWith("preparationtime")
+      );
 
-    const preparationIndex = lines.findIndex((line) =>
-      line.toLowerCase().replace(" ", "").startsWith("preparationtime")
-    );
+      recipe.preparationTime = lines[preparationIndex].substring(
+        "preparationTime ".length
+      );
 
-    recipe.preparationTime = lines[preparationIndex].substring(
-      "preparationTime ".length
-    );
-
-    recipe.servings = Number(
-      lines[
+      recipe.servings = lines[
         lines.findIndex((line) => line.toLowerCase().startsWith("servings"))
-      ].substring("servings ".length)
-    );
+      ].substring("servings ".length);
 
-    //recipe.cookingInstructions =
-    const instructionsStartIndex =
-      lines.findIndex((line) =>
-        line.toLowerCase().replace(" ", "").startsWith("cookinginstructions")
-      ) + 1;
+      //recipe.cookingInstructions =
+      const instructionsStartIndex =
+        lines.findIndex((line) =>
+          line.toLowerCase().replace(" ", "").startsWith("cookinginstructions")
+        ) + 1;
 
-    recipe.cookingInstructions = lines.slice(
-      instructionsStartIndex,
-      preparationIndex
-    );
+      recipe.cookingInstructions = lines.slice(
+        instructionsStartIndex,
+        preparationIndex
+      );
 
-    const ingredientsStartIndex =
-      lines.findIndex((line) => line.toLowerCase().startsWith("ingredients")) +
-      2;
+      const ingredientsStartIndex =
+        lines.findIndex((line) =>
+          line.toLowerCase().startsWith("ingredients")
+        ) + 2;
 
-    const ingredientArray = lines.slice(ingredientsStartIndex);
-    recipe.ingredients = ingredientArray.map((ingredient) => {
-      const [name, quantity] = ingredient.split(",");
-      return {
-        name: name.trim().replace(/[^\w\s]/gi, ""),
-        quantity: quantity.trim(),
-      };
-    });
+      const ingredientArray = lines.slice(ingredientsStartIndex);
+      recipe.ingredients = ingredientArray.map((ingredient) => {
+        const [name, quantity] = ingredient.split(",");
+        console.log(name, quantity);
+        return {
+          name: name.trim().replace(/[^\w\s]/gi, ""),
+          quantity: quantity.trim(),
+        };
+      });
 
-    const image = await runImagePrompt(recipe.description);
-    recipe.image = image ? image : "";
-
-    return recipe;
+      const image = await runImagePrompt(
+        `Cartoon image of ${recipe.description}`
+      );
+      recipe.image = image ? image : "";
+      return recipe;
+    } catch (error) {
+      setLoadingMessage(
+        "Error generating recipe, please try again or try new ingredients"
+      );
+      console.log(error);
+      return null;
+    }
   };
   const handleGenerateSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -179,6 +213,17 @@ const GenerateRecipe = () => {
       );
 
       console.log(recipe_response.data);
+      setRecipe({
+        title: recipe.title,
+        description: recipe.description,
+        cookingInstructions: recipe.cookingInstructions,
+        preparationTime: recipe.preparationTime,
+        servings: recipe.servings,
+        ingredients: recipe.ingredients,
+        image: recipe.image,
+        user: user.username,
+      });
+      setLoaded(true);
     } catch (error) {
       console.log(error);
     }
@@ -276,6 +321,7 @@ const GenerateRecipe = () => {
           fullWidth
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          autoComplete="off"
         />
       </form>
       <form onSubmit={handleGenerateSubmit}>
@@ -315,6 +361,9 @@ const GenerateRecipe = () => {
           </ListItem>
         ))}
       </List>
+      {loading ? <CircularProgress /> : null}
+      {loading ? loadingMessage : null}
+      {loaded ? <RecipeCard recipe={recipe}></RecipeCard> : null}
     </Box>
   );
 };

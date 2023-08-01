@@ -87,6 +87,7 @@ export default function SignIn() {
       });
       // Sending API request to fetch user data
       console.log(response.data);
+      localStorage.setItem("accessToken", response.data.token);
       return response.data; // Return the user data from the API response
     } catch (error) {
       console.error(error);

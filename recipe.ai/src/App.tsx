@@ -16,12 +16,16 @@ import Recipes from "./components/Recipes";
 export const BASE_URL = import.meta.env.VITE_BASEURL;
 export const OPENAI_KEY = import.meta.env.VITE_OPENAIKEY;
 
-const defaultTheme = createTheme();
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 const App: React.FC = () => {
   return (
     <UserProvider>
-      <ThemeProvider theme={defaultTheme}>
+      <ThemeProvider theme={darkTheme}>
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/register" element={<SignUp />} />

@@ -17,7 +17,7 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems, secondaryListItems } from "./NavItems";
+import { MainListItems, SecondaryListItems } from "./NavItems";
 
 import { Outlet, Route, Routes } from "react-router-dom";
 import GenerateRecipe from "./GenerateRecipe";
@@ -121,9 +121,9 @@ export default function Home() {
         </Toolbar>
         <Divider />
         <List component="nav">
-          {mainListItems}
+          <MainListItems />
           <Divider sx={{ my: 1 }} />
-          {secondaryListItems}
+          <SecondaryListItems />
         </List>
       </Drawer>
       <Box

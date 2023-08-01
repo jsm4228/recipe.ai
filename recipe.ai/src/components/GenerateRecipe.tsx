@@ -160,7 +160,7 @@ const GenerateRecipe = () => {
       preparationTime: [provide the amount of time in minutes to make this recipe]
       servings: [provide the amount of servings this recipe makes]
       image: [provide a random url from unsplash]
-      Ingredients: [provide a list of ingredients in the format of "name of ingredient, quantity of ingredient"
+      Ingredients: [provide a list of ingredients in the format of "name of ingredient, quantity of ingredient". Please separate the name of the ingredient and the quantity of the ingredient with a comma.]
       
       In your response, please ensure all these attributes (title, description, cookingInstructions, preparationTime, servings, image, and ingredients) have a value and all these attributes are lowercase in your response and appear exactly as written here (one word and in camelCase).`;
     console.log(prompt);

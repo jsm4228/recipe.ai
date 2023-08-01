@@ -18,6 +18,7 @@ import axios from "axios";
 import { BASE_URL } from "../App";
 import { UserContext } from "../contexts/UserContext";
 import { ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props: any) {
   return (
@@ -41,6 +42,7 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
+  const navigate = useNavigate();
   type FormState = {
     email: string | null;
     password: string | null;
@@ -71,6 +73,7 @@ export default function SignIn() {
       return;
     } else {
       setUser(user.user);
+      navigate("/home");
 
       //insert code for setting context variable to user and redirecting to home page and passing user object to the next page and using local storage to store user data
     }

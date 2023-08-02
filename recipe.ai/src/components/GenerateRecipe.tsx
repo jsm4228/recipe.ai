@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  Grow,
   IconButton,
   List,
   ListItem,
@@ -27,6 +28,7 @@ import { BASE_URL, OPENAI_KEY } from "../App";
 import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
 import RecipeCard from "./RecipeCard";
+import { TypeAnimation } from "react-type-animation";
 
 function generate(element: React.ReactElement) {
   return [0, 1, 2].map((value) =>
@@ -101,6 +103,7 @@ const GenerateRecipe = () => {
       temperature: 0.2,
     });
     setLoading(false);
+
     return response_ai.data.choices[0].text;
   };
   const parseRecipe = async (input: string): Promise<Recipe | null> => {
@@ -187,7 +190,7 @@ const GenerateRecipe = () => {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-
+    setLoaded(false);
     const prompt: string = `Please create a recipe for ${meal} that is ${healthy} and uses the following ingredients: ${items.join()}.
 
       In your response, please provide the following attributes for the recipe:
@@ -254,12 +257,22 @@ const GenerateRecipe = () => {
 
   return (
     <Box>
-      <Typography variant="h2" align="center">
+      <Typography variant="h2" align="center" padding={"10px"}>
         AI Recipe Generator
+      </Typography>
+      <Typography
+        variant="body1"
+        align="center"
+        color={"grey"}
+        padding={"10px"}
+      >
+        Welcome to the AI Recipe Generator! Type in any ingredient in the box
+        below and hit enter to add it to your recipe. Once you're ready, click
+        'Generate Recipe' to generate a new recipe with AI.
       </Typography>
       <form
         onSubmit={handleSubmit}
-        style={{ display: "flex", alignItems: "center" }}
+        style={{ display: "flex", alignItems: "center", padding: "10px" }}
       >
         <TextField
           id="outlined-basic"
@@ -271,71 +284,76 @@ const GenerateRecipe = () => {
           autoComplete="off"
         />
       </form>
-      <Container
+
+      <Box
         sx={{
-          height: "66vh", // Set the desired fixed height here
-          overflowY: "auto", // Enable vertical scrolling if list grows beyond fixed height
+          border: "1px solid gray",
+          borderRadius: "10px",
+          minHeight: "50vh",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px", // Adding a gap between the two child boxes
+          padding: "20px",
         }}
       >
-        <Grid
-          container
-          spacing={2}
-          maxWidth="sm"
-          style={{
+        <Box sx={{ flex: 1 }}>
+          <List dense={dense}>
+            {items.map((item, index) => (
+              <ListItem
+                key={index}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDeleteItem(index)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemAvatar>
+                  <Avatar>
+                    <KitchenOutlinedIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={item}
+                  secondary={secondary ? "Secondary text" : null}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+        <Box
+          sx={{
+            flex: 1,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "left",
+            justifyContent: "center",
+            alignItems: "center",
+            overflow: "auto",
+            margin: "auto",
           }}
         >
-          <Grid item>
-            <List
-              dense={dense}
-              sx={{
-                border: "1px solid gray",
-                borderRadius: "10px",
-                height: "66vh",
-              }}
-            >
-              {items.map((item, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleDeleteItem(index)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemAvatar>
-                    <Avatar>
-                      <KitchenOutlinedIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={item}
-                    secondary={secondary ? "Secondary text" : null}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Grid>
-          <Grid
-            item
-            sx={{
-              border: "1px solid gray",
-              borderRadius: "10px",
-              height: "66vh",
-            }}
-          >
-            {loading ? <CircularProgress /> : null}
-            {loading ? loadingMessage : null}
-            {loaded ? <RecipeCard recipe={recipe}></RecipeCard> : null}
-          </Grid>
-        </Grid>
-      </Container>
+          {loading ? <CircularProgress /> : null}
+          {loading ? (
+            <TypeAnimation
+              key={loadingMessage}
+              sequence={[
+                // Same substring at the start will only be typed once, initially
+                loadingMessage,
+                1000,
+              ]}
+              speed={50}
+              // style={{ fontSize: "2em" }}
+              repeat={Infinity}
+            />
+          ) : null}
+          {loaded ? (
+            <RecipeCard recipe={recipe} setLoaded={setLoaded}></RecipeCard>
+          ) : null}
+        </Box>
+      </Box>
+
       <Container
         sx={{
           display: "flex",

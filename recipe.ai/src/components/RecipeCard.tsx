@@ -43,9 +43,10 @@ interface Recipe {
 
 interface RecipeCardProps {
   recipe: Recipe;
+  setLoaded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const RecipeReviewCard: React.FC<RecipeCardProps> = ({ recipe }) => {
+const RecipeReviewCard: React.FC<RecipeCardProps> = ({ recipe, setLoaded }) => {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -72,11 +73,8 @@ const RecipeReviewCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         component="img"
         height="194"
         image={recipe.image}
-        alt={
-          recipe.image
-            ? "Image not available"
-            : "https://source.unsplash.com/random?food"
-        }
+        onLoad={() => setLoaded(true)}
+        alt={"failed to get image"}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">

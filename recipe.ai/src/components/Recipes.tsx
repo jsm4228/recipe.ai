@@ -17,6 +17,7 @@ const Recipes = () => {
   }
   const [recipes, setRecipes] = React.useState<Recipe[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(null);
 
   const getRecipes = async () => {
@@ -62,7 +63,7 @@ const Recipes = () => {
       <Grid container spacing={3}>
         {recipes.map((recipe: Recipe) => (
           <Grid item xs={12} sm={6} md={4} key={recipe.title}>
-            <RecipeCard recipe={recipe}></RecipeCard>
+            <RecipeCard recipe={recipe} setLoaded={setLoaded}></RecipeCard>
           </Grid>
         ))}
       </Grid>

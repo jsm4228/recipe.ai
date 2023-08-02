@@ -57,7 +57,7 @@ const RecipeReviewCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            R
+            {recipe.user?.substring(0, 1)}
           </Avatar>
         }
         action={
@@ -72,7 +72,11 @@ const RecipeReviewCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         component="img"
         height="194"
         image={recipe.image}
-        alt="Failed to load image"
+        alt={
+          recipe.image
+            ? "Image not available"
+            : "https://source.unsplash.com/random?food"
+        }
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">

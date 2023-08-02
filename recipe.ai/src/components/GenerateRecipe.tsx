@@ -8,6 +8,7 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  Grid,
   IconButton,
   List,
   ListItem,
@@ -77,12 +78,14 @@ const GenerateRecipe = () => {
   const runImagePrompt = async (message: string) => {
     setLoading(true);
     setLoadingMessage("Generating image...");
+
     const response = await openai.createImage({
       prompt: message,
       n: 1,
       size: "1024x1024",
     });
     const image_url = response.data.data[0].url;
+    // upload_image(image_url);
     console.log(image_url);
     setLoading(false);
     return image_url;
@@ -251,6 +254,88 @@ const GenerateRecipe = () => {
 
   return (
     <Box>
+      <Typography variant="h2" align="center">
+        AI Recipe Generator
+      </Typography>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", alignItems: "center" }}
+      >
+        <TextField
+          id="outlined-basic"
+          label="Add ingredients"
+          variant="outlined"
+          fullWidth
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          autoComplete="off"
+        />
+      </form>
+      <Container
+        sx={{
+          height: "66vh", // Set the desired fixed height here
+          overflowY: "auto", // Enable vertical scrolling if list grows beyond fixed height
+        }}
+      >
+        <Grid
+          container
+          spacing={2}
+          maxWidth="sm"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "left",
+          }}
+        >
+          <Grid item>
+            <List
+              dense={dense}
+              sx={{
+                border: "1px solid gray",
+                borderRadius: "10px",
+                height: "66vh",
+              }}
+            >
+              {items.map((item, index) => (
+                <ListItem
+                  key={index}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDeleteItem(index)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemAvatar>
+                    <Avatar>
+                      <KitchenOutlinedIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={item}
+                    secondary={secondary ? "Secondary text" : null}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Grid>
+          <Grid
+            item
+            sx={{
+              border: "1px solid gray",
+              borderRadius: "10px",
+              height: "66vh",
+            }}
+          >
+            {loading ? <CircularProgress /> : null}
+            {loading ? loadingMessage : null}
+            {loaded ? <RecipeCard recipe={recipe}></RecipeCard> : null}
+          </Grid>
+        </Grid>
+      </Container>
       <Container
         sx={{
           display: "flex",
@@ -258,13 +343,28 @@ const GenerateRecipe = () => {
           justifyContent: "center",
         }}
       >
-        <FormControl>
+        <FormControl
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            m: 1,
+            minWidth: 120,
+          }}
+        >
           <FormLabel id="demo-radio-buttons-group-label">Meal</FormLabel>
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="female"
             name="radio-buttons-group"
             onChange={handleChangeMeal}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              border: "1px solid gray",
+              borderRadius: "10px",
+              padding: "10px",
+              margin: "10px",
+            }}
           >
             <FormControlLabel
               value="breakfast"
@@ -284,13 +384,29 @@ const GenerateRecipe = () => {
             />
           </RadioGroup>
         </FormControl>
-        <FormControl>
+        <FormControl
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            m: 1,
+            minWidth: 120,
+          }}
+        >
           <FormLabel id="demo-radio-buttons-group-label">Nutrition</FormLabel>
+
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="female"
             name="radio-buttons-group"
             onChange={handleChangeHealthy}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              border: "1px solid gray",
+              borderRadius: "10px",
+              padding: "10px",
+              margin: "10px",
+            }}
           >
             <FormControlLabel
               value="healthy"
@@ -309,61 +425,17 @@ const GenerateRecipe = () => {
             />
           </RadioGroup>
         </FormControl>
-      </Container>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", alignItems: "center" }}
-      >
-        <TextField
-          id="outlined-basic"
-          label="Add ingredients"
-          variant="outlined"
-          fullWidth
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          autoComplete="off"
-        />
-      </form>
-      <form onSubmit={handleGenerateSubmit}>
-        <Button
-          type="submit"
-          variant="outlined"
-          color="primary"
-          sx={{ height: "90%" }}
-        >
-          Generate Recipe
-        </Button>
-      </form>
-
-      <List dense={dense}>
-        {items.map((item, index) => (
-          <ListItem
-            key={index}
-            secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => handleDeleteItem(index)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            }
+        <form onSubmit={handleGenerateSubmit}>
+          <Button
+            type="submit"
+            variant="outlined"
+            color="primary"
+            sx={{ height: "90%" }}
           >
-            <ListItemAvatar>
-              <Avatar>
-                <KitchenOutlinedIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={item}
-              secondary={secondary ? "Secondary text" : null}
-            />
-          </ListItem>
-        ))}
-      </List>
-      {loading ? <CircularProgress /> : null}
-      {loading ? loadingMessage : null}
-      {loaded ? <RecipeCard recipe={recipe}></RecipeCard> : null}
+            Generate Recipe
+          </Button>
+        </form>
+      </Container>
     </Box>
   );
 };

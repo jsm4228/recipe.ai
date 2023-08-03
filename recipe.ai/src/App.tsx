@@ -20,12 +20,6 @@ export const ColorModeContext = React.createContext({
   toggleColorMode: () => {},
 });
 
-const theme = createTheme({
-  palette: {
-    mode: "light",
-  },
-});
-
 const App: React.FC = () => {
   const [mode, setMode] = React.useState<"dark" | "light">("dark");
   const colorMode = React.useMemo(

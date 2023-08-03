@@ -2,14 +2,11 @@ import {
   Avatar,
   Box,
   Button,
-  ButtonGroup,
   CircularProgress,
   Container,
   FormControl,
   FormControlLabel,
   FormLabel,
-  Grid,
-  Grow,
   IconButton,
   List,
   ListItem,
@@ -22,21 +19,12 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import KitchenOutlinedIcon from "@mui/icons-material/KitchenOutlined";
-import React, { useContext } from "react";
+import React from "react";
 import { Configuration, OpenAIApi } from "openai";
 import { BASE_URL, OPENAI_KEY } from "../App";
-import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
 import RecipeCard from "./RecipeCard";
 import { TypeAnimation } from "react-type-animation";
-
-function generate(element: React.ReactElement) {
-  return [0, 1, 2].map((value) =>
-    React.cloneElement(element, {
-      key: value,
-    })
-  );
-}
 
 const GenerateRecipe = () => {
   interface Recipe {
@@ -61,8 +49,9 @@ const GenerateRecipe = () => {
     image: "",
     user: sessionStorage.getItem("username"),
   };
-  const [dense, setDense] = React.useState(false);
-  const [secondary, setSecondary] = React.useState(false);
+  // @ts-ignore
+  const [dense, setDense] = React.useState(false); // @ts-ignore
+  const [secondary, setSecondary] = React.useState(false); // @ts-ignore
   const [inputValue, setInputValue] = React.useState("");
   const [meal, setMeal] = React.useState("");
   const [healthy, setHealthy] = React.useState("");
@@ -183,7 +172,7 @@ const GenerateRecipe = () => {
         "Error generating recipe, please try again or try new ingredients"
       );
       console.log(error);
-      return recipe;
+      return null;
     }
   };
   const handleGenerateSubmit = async (

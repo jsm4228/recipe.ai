@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { createContext, Dispatch, useState, SetStateAction } from "react";
+import { useState } from "react";
 
 export type User = {
   _id: string;
@@ -25,6 +25,7 @@ const defaultState = {
     createdAt: new Date(),
     updatedAt: new Date(),
   },
+  // @ts-ignore
   setUser: (user: User) => {},
 } as UserContextType;
 

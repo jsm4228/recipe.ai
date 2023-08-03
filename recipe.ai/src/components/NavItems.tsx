@@ -1,20 +1,14 @@
 import * as React from "react";
-import { createContext } from "react";
 import { ColorModeContext } from "../App";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import PeopleIcon from "@mui/icons-material/People";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import LayersIcon from "@mui/icons-material/Layers";
 import PaletteIcon from "@mui/icons-material/Palette";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import FoodBankIcon from "@mui/icons-material/FoodBank";
 import { useNavigate } from "react-router-dom";
-import { FormControlLabel, Switch, styled, useTheme } from "@mui/material";
+import { Switch, styled } from "@mui/material";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -86,7 +80,6 @@ export const MainListItems: React.FC = () => {
 };
 
 export const SecondaryListItems: React.FC = () => {
-  const theme = useTheme();
   const colorMode = React.useContext(ColorModeContext);
   return (
     <React.Fragment>

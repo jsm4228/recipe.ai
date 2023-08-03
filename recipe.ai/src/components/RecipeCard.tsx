@@ -38,7 +38,7 @@ interface Recipe {
   servings: string | undefined;
   ingredients: {}[] | undefined;
   image: string | undefined;
-  user: string | undefined;
+  user: string | null;
 }
 
 interface RecipeCardProps {

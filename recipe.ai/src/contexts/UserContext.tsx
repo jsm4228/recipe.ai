@@ -8,6 +8,7 @@ export type User = {
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  accessToken: string;
 };
 
 export type UserContextType = {
@@ -39,6 +40,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     password: "",
     createdAt: new Date(),
     updatedAt: new Date(),
+    accessToken: "",
   });
 
   return (

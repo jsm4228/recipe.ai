@@ -16,12 +16,14 @@ import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { MainListItems, SecondaryListItems } from "./NavItems";
 
 import { Outlet, Route, Routes } from "react-router-dom";
 import GenerateRecipe from "./GenerateRecipe";
 import Recipes from "./Recipes";
+import { useNavigate } from "react-router-dom";
 // import Chart from "./Chart";
 // import Deposits from "./Deposits";
 // import Orders from "./Orders";
@@ -97,9 +99,15 @@ const Drawer = styled(MuiDrawer, {
 const defaultTheme = createTheme();
 
 export default function Home() {
+  let navigate = useNavigate();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+  const handleLogOut = () => {
+    navigate("/");
+    sessionStorage.clear();
+    window.location.reload();
   };
 
   return (
@@ -132,11 +140,9 @@ export default function Home() {
           >
             recipe.ai
           </Typography>
-          {/* <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton> */}
+          <IconButton color="inherit" onClick={() => handleLogOut}>
+            <LogoutIcon onClick={handleLogOut} />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>

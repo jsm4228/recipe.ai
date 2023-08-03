@@ -47,9 +47,9 @@ const GenerateRecipe = () => {
     servings: string | undefined;
     ingredients: {}[] | undefined;
     image: string | undefined;
-    user: string | undefined;
+    user: string | null;
   }
-  const { user, setUser } = useContext(UserContext);
+  //const { user, setUser } = useContext(UserContext);
 
   const initialRecipe: Recipe = {
     title: "",
@@ -59,7 +59,7 @@ const GenerateRecipe = () => {
     servings: "",
     ingredients: [],
     image: "",
-    user: user.username,
+    user: sessionStorage.getItem("username"),
   };
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(false);
@@ -115,7 +115,7 @@ const GenerateRecipe = () => {
       servings: "",
       ingredients: [],
       image: "",
-      user: user.username,
+      user: sessionStorage.getItem("username"),
     };
     try {
       const lines = input
@@ -183,7 +183,7 @@ const GenerateRecipe = () => {
         "Error generating recipe, please try again or try new ingredients"
       );
       console.log(error);
-      return null;
+      return recipe;
     }
   };
   const handleGenerateSubmit = async (
@@ -211,7 +211,7 @@ const GenerateRecipe = () => {
       //   response ? console.log(await parseRecipe(response)) : null;
       let recipe;
       response ? (recipe = await parseRecipe(response)) : null;
-      recipe = { ...recipe, user: user._id };
+      recipe = { ...recipe, user: sessionStorage.getItem("userId") };
       console.log(recipe);
       const recipe_response = await axios.post(
         `${BASE_URL}/api/recipes/`,
@@ -227,7 +227,7 @@ const GenerateRecipe = () => {
         servings: recipe.servings,
         ingredients: recipe.ingredients,
         image: recipe.image,
-        user: user.username,
+        user: sessionStorage.getItem("username"),
       });
       setLoaded(true);
     } catch (error) {

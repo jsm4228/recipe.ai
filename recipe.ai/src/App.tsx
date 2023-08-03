@@ -16,25 +16,49 @@ import Recipes from "./components/Recipes";
 export const BASE_URL = import.meta.env.VITE_BASEURL;
 export const OPENAI_KEY = import.meta.env.VITE_OPENAIKEY;
 
-const darkTheme = createTheme({
+export const ColorModeContext = React.createContext({
+  toggleColorMode: () => {},
+});
+
+const theme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
   },
 });
 
 const App: React.FC = () => {
+  const [mode, setMode] = React.useState<"dark" | "light">("dark");
+  const colorMode = React.useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+      },
+    }),
+    []
+  );
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+        },
+      }),
+    [mode]
+  );
   return (
     <UserProvider>
-      <ThemeProvider theme={darkTheme}>
-        <Routes>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/register" element={<SignUp />} />
-          <Route path="/home" element={<Home />}>
-            <Route path="generate" element={<GenerateRecipe />} />
-            <Route path="recipes" element={<Recipes />} />
-          </Route>
-        </Routes>
-      </ThemeProvider>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <Routes>
+            <Route path="/" element={<SignIn />} />
+            <Route path="/register" element={<SignUp />} />
+            <Route path="/home" element={<Home />}>
+              <Route path="generate" element={<GenerateRecipe />} />
+              <Route path="recipes" element={<Recipes />} />
+            </Route>
+          </Routes>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
     </UserProvider>
   );
 };

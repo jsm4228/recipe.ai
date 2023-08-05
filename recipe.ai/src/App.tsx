@@ -13,10 +13,10 @@ import { Routes, Route } from "react-router-dom";
 import GenerateRecipe from "./components/GenerateRecipe";
 import Recipes from "./components/Recipes";
 
-// export const BASE_URL = import.meta.env.VITE_BASEURL;
-// export const OPENAI_KEY = import.meta.env.VITE_OPENAIKEY;
-export const BASE_URL = process.env.VITE_BASEURL;
-export const OPENAI_KEY = process.env.VITE_OPENAIKEY;
+export const BASE_URL = import.meta.env.VITE_BASEURL;
+export const OPENAI_KEY = import.meta.env.VITE_OPENAIKEY;
+//export const BASE_URL = process.env.VITE_BASEURL;
+//export const OPENAI_KEY = process.env.VITE_OPENAIKEY;
 
 export const ColorModeContext = React.createContext({
   toggleColorMode: () => {},
